@@ -4,34 +4,274 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Christmas Room Cleaning Checklist</title>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background-color: #fee2e2;
+            min-height: 100vh;
+            padding: 16px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            color: #1f2937;
+        }
+        
+        .badge {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: #16a34a;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #15803d;
+        }
+        
+        .btn-secondary {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #2563eb;
+        }
+        
+        .btn-danger {
+            background-color: #dc2626;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #b91c1c;
+        }
+        
+        .btn-cancel {
+            background-color: #d1d5db;
+            color: #374151;
+        }
+        
+        .btn-cancel:hover {
+            background-color: #9ca3af;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+        
+        .btn-block {
+            width: 100%;
+        }
+        
+        .input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .input:focus {
+            outline: none;
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+        
+        .flex {
+            display: flex;
+        }
+        
+        .flex-col {
+            flex-direction: column;
+        }
+        
+        .gap-2 {
+            gap: 8px;
+        }
+        
+        .gap-3 {
+            gap: 12px;
+        }
+        
+        .items-center {
+            align-items: center;
+        }
+        
+        .justify-between {
+            justify-content: space-between;
+        }
+        
+        .mb-4 {
+            margin-bottom: 16px;
+        }
+        
+        .mb-6 {
+            margin-bottom: 24px;
+        }
+        
+        .student-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            background-color: #f9fafb;
+            margin-bottom: 16px;
+        }
+        
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .item-card {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .status-pending {
+            background-color: #d1d5db;
+        }
+        
+        .status-ready {
+            background-color: #fbbf24;
+        }
+        
+        .status-done {
+            background-color: #22c55e;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background-color: #fee2e2;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 16px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: #dc2626;
+            transition: width 0.5s;
+        }
+        
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .alert-yellow {
+            background-color: #fef3c7;
+            border: 1px solid #fde047;
+        }
+        
+        .alert-green {
+            background-color: #d1fae5;
+            border: 1px solid #86efac;
+        }
+        
+        .celebration {
+            background-color: #16a34a;
+            color: white;
+            text-align: center;
+            padding: 24px;
+            border-radius: 12px;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .text-sm {
+            font-size: 14px;
+        }
+        
+        .text-xs {
+            font-size: 12px;
+        }
+        
+        .text-gray {
+            color: #6b7280;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 640px) {
+            .container {
+                max-width: 500px;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="root"></div>
+    <div class="container">
+        <div id="app"></div>
+    </div>
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-        const { AlertCircle, Check, Clock, User, Users } = lucide;
-
-        // Simple in-memory backend simulation with localStorage persistence
+    <script>
+        // Database
         const DB = {
             students: [],
             
             init() {
                 const saved = localStorage.getItem('roomChecklistDB');
                 if (saved) {
-                    this.students = JSON.parse(saved);
+                    try {
+                        this.students = JSON.parse(saved);
+                    } catch (e) {
+                        this.students = [];
+                    }
                 }
             },
             
@@ -42,7 +282,7 @@
             addStudent(name) {
                 const student = {
                     id: Date.now().toString(),
-                    name,
+                    name: name,
                     items: [
                         { id: 'bedroller', name: 'Bedroller', status: 'pending' },
                         { id: 'matress', name: 'Matress', status: 'pending' },
@@ -79,314 +319,275 @@
             deleteStudent(studentId) {
                 this.students = this.students.filter(s => s.id !== studentId);
                 this.save();
-            },
-            
-            clearAll() {
-                this.students = [];
-                this.save();
             }
         };
 
-        // Initialize DB
+        // Initialize
         DB.init();
 
-        const Icon = ({ icon: IconComponent, ...props }) => {
-            return <IconComponent {...props} />;
-        };
-
-        const TeacherView = () => {
-            const [students, setStudents] = useState(DB.getAllStudents());
-            const [newStudentName, setNewStudentName] = useState('');
-            const [showAddForm, setShowAddForm] = useState(false);
-
-            const refresh = () => setStudents([...DB.getAllStudents()]);
-
-            const addStudent = () => {
-                if (newStudentName.trim() && students.length < 20) {
-                    DB.addStudent(newStudentName.trim());
-                    setNewStudentName('');
-                    setShowAddForm(false);
-                    refresh();
-                }
-            };
-
-            const markAsDone = (studentId, itemId) => {
-                DB.updateItemStatus(studentId, itemId, 'done');
-                refresh();
-            };
-
-            const deleteStudent = (studentId) => {
-                if (confirm('Are you sure you want to remove this student?')) {
-                    DB.deleteStudent(studentId);
-                    refresh();
-                }
-            };
-
-            const getStudentLink = (studentId) => {
-                return `${window.location.origin}${window.location.pathname}?student=${studentId}`;
-            };
-
-            const copyLink = (studentId) => {
-                const link = getStudentLink(studentId);
-                navigator.clipboard.writeText(link);
-                alert('Link copied to clipboard!');
-            };
-
-            const getProgress = (student) => {
-                const done = student.items.filter(i => i.status === 'done').length;
-                return `${done}/4`;
-            };
-
-            const getStatusColor = (status) => {
-                if (status === 'done') return 'bg-green-500';
-                if (status === 'ready') return 'bg-yellow-500';
-                return 'bg-gray-300';
-            };
-
-            return (
-                <div className="min-h-screen bg-red-50 p-4">
-                    <div className="max-w-4xl mx-auto">
-                        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-                            <div className="flex items-center justify-between mb-6">
-                                <div className="flex items-center gap-3">
-                                    <Icon icon={Users} className="text-red-600" size={32} />
-                                    <h1 className="text-2xl font-bold text-gray-800">Christmas Room Cleaning</h1>
-                                </div>
-                                <span className="text-sm text-gray-600">Teacher View</span>
-                            </div>
-
-                            {students.length < 20 && (
-                                <div className="mb-6">
-                                    {!showAddForm ? (
-                                        <button
-                                            onClick={() => setShowAddForm(true)}
-                                            className="w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 transition"
-                                        >
-                                            + Add Student
-                                        </button>
-                                    ) : (
-                                        <div className="flex gap-2">
-                                            <input
-                                                type="text"
-                                                value={newStudentName}
-                                                onChange={(e) => setNewStudentName(e.target.value)}
-                                                onKeyPress={(e) => e.key === 'Enter' && addStudent()}
-                                                placeholder="Student name"
-                                                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                                                autoFocus
-                                            />
-                                            <button
-                                                onClick={addStudent}
-                                                className="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition"
-                                            >
-                                                Add
-                                            </button>
-                                            <button
-                                                onClick={() => setShowAddForm(false)}
-                                                className="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-400 transition"
-                                            >
-                                                Cancel
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            {students.length === 0 ? (
-                                <div className="text-center py-12 text-gray-500">
-                                    <Icon icon={Users} size={48} className="mx-auto mb-4 opacity-50" />
-                                    <p>No students added yet. Add your first student to get started!</p>
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    {students.map((student) => (
-                                        <div key={student.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                                            <div className="flex items-center justify-between mb-3">
-                                                <div className="flex items-center gap-2">
-                                                    <Icon icon={User} size={20} className="text-gray-600" />
-                                                    <h3 className="font-semibold text-lg">{student.name}</h3>
-                                                    <span className="text-sm text-gray-600">({getProgress(student)})</span>
-                                                </div>
-                                                <div className="flex gap-2">
-                                                    <button
-                                                        onClick={() => copyLink(student.id)}
-                                                        className="text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
-                                                    >
-                                                        Copy Link
-                                                    </button>
-                                                    <button
-                                                        onClick={() => deleteStudent(student.id)}
-                                                        className="text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
-                                                    >
-                                                        Remove
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            <div className="grid grid-cols-2 gap-3">
-                                                {student.items.map((item) => (
-                                                    <div key={item.id} className="bg-white p-3 rounded border border-gray-200">
-                                                        <div className="flex items-center justify-between mb-2">
-                                                            <span className="font-medium text-sm">{item.name}</span>
-                                                            <div className={`w-3 h-3 rounded-full ${getStatusColor(item.status)}`} />
-                                                        </div>
-                                                        
-                                                        {item.status === 'pending' && (
-                                                            <span className="text-xs text-gray-500">Waiting...</span>
-                                                        )}
-                                                        
-                                                        {item.status === 'ready' && (
-                                                            <button
-                                                                onClick={() => markAsDone(student.id, item.id)}
-                                                                className="w-full bg-green-600 text-white py-2 rounded text-sm font-medium hover:bg-green-700 transition flex items-center justify-center gap-1"
-                                                            >
-                                                                <Icon icon={Check} size={16} />
-                                                                Mark Done
-                                                            </button>
-                                                        )}
-                                                        
-                                                        {item.status === 'done' && (
-                                                            <div className="flex items-center gap-1 text-green-600 text-sm">
-                                                                <Icon icon={Check} size={16} />
-                                                                <span>Completed</span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="text-center text-sm text-gray-600">
-                            <p>Students: {students.length}/20</p>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
-        const StudentView = ({ studentId }) => {
-            const [student, setStudent] = useState(null);
-
-            const refresh = () => {
-                const s = DB.getStudent(studentId);
-                setStudent(s ? { ...s } : null);
-            };
-
-            useEffect(() => {
-                refresh();
-                const interval = setInterval(refresh, 2000);
-                return () => clearInterval(interval);
-            }, [studentId]);
-
-            const markAsReady = (itemId) => {
-                DB.updateItemStatus(studentId, itemId, 'ready');
-                refresh();
-            };
-
-            if (!student) {
-                return (
-                    <div className="min-h-screen bg-red-50 flex items-center justify-center p-4">
-                        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-                            <Icon icon={AlertCircle} className="mx-auto mb-4 text-red-500" size={48} />
-                            <h2 className="text-xl font-bold mb-2">Student Not Found</h2>
-                            <p className="text-gray-600">Please check your link and try again.</p>
-                        </div>
-                    </div>
-                );
-            }
-
-            const getProgress = () => {
-                return student.items.filter(i => i.status === 'done').length;
-            };
-
-            return (
-                <div className="min-h-screen bg-red-50 p-4">
-                    <div className="max-w-md mx-auto">
-                        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-                            <div className="text-center mb-6">
-                                <h1 className="text-2xl font-bold text-gray-800 mb-2">Christmas Room Cleaning</h1>
-                                <div className="flex items-center justify-center gap-2 text-lg">
-                                    <Icon icon={User} className="text-red-600" size={24} />
-                                    <span className="font-semibold">{student.name}</span>
-                                </div>
-                                <div className="mt-4 bg-red-100 rounded-full h-3 overflow-hidden">
-                                    <div 
-                                        className="bg-red-600 h-full transition-all duration-500"
-                                        style={{ width: `${(getProgress() / 4) * 100}%` }}
-                                    />
-                                </div>
-                                <p className="text-sm text-gray-600 mt-2">{getProgress()} of 4 completed</p>
-                            </div>
-
-                            <div className="space-y-3">
-                                {student.items.map((item) => (
-                                    <div key={item.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                                        <div className="flex items-center justify-between mb-3">
-                                            <h3 className="font-semibold text-lg">{item.name}</h3>
-                                            {item.status === 'done' && <Icon icon={Check} className="text-green-600" size={24} />}
-                                            {item.status === 'ready' && <Icon icon={Clock} className="text-yellow-600" size={24} />}
-                                        </div>
-
-                                        {item.status === 'pending' && (
-                                            <button
-                                                onClick={() => markAsReady(item.id)}
-                                                className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition"
-                                            >
-                                                I'm Ready for Check
-                                            </button>
-                                        )}
-
-                                        {item.status === 'ready' && (
-                                            <div className="bg-yellow-100 border border-yellow-300 rounded-lg p-3 text-center">
-                                                <Icon icon={Clock} className="mx-auto mb-2 text-yellow-700" size={24} />
-                                                <p className="text-sm text-yellow-800 font-medium">Waiting for teacher to check</p>
-                                            </div>
-                                        )}
-
-                                        {item.status === 'done' && (
-                                            <div className="bg-green-100 border border-green-300 rounded-lg p-3 text-center">
-                                                <Icon icon={Check} className="mx-auto mb-2 text-green-700" size={24} />
-                                                <p className="text-sm text-green-800 font-medium">Completed! Well done!</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {getProgress() === 4 && (
-                            <div className="bg-green-600 text-white rounded-lg shadow-lg p-6 text-center">
-                                <div className="text-4xl mb-2">🎄</div>
-                                <h2 className="text-xl font-bold mb-2">All Done!</h2>
-                                <p>Your room is ready for Christmas! Great job!</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            );
-        };
-
-        function RoomChecklistApp() {
-            const [view, setView] = useState('teacher');
-            const [studentId, setStudentId] = useState(null);
-
-            useEffect(() => {
+        // App
+        class App {
+            constructor() {
+                this.view = 'teacher';
+                this.studentId = null;
+                this.showAddForm = false;
+                
+                // Check URL for student parameter
                 const params = new URLSearchParams(window.location.search);
                 const student = params.get('student');
                 if (student) {
-                    setStudentId(student);
-                    setView('student');
+                    this.studentId = student;
+                    this.view = 'student';
                 }
-            }, []);
-
-            return view === 'teacher' ? <TeacherView /> : <StudentView studentId={studentId} />;
+                
+                this.render();
+                
+                // Auto-refresh for student view
+                if (this.view === 'student') {
+                    setInterval(() => this.render(), 2000);
+                }
+            }
+            
+            render() {
+                const app = document.getElementById('app');
+                if (this.view === 'teacher') {
+                    app.innerHTML = this.renderTeacherView();
+                    this.attachTeacherEvents();
+                } else {
+                    app.innerHTML = this.renderStudentView();
+                    this.attachStudentEvents();
+                }
+            }
+            
+            renderTeacherView() {
+                const students = DB.getAllStudents();
+                
+                return `
+                    <div class="card">
+                        <div class="header">
+                            <h1>🎄 Christmas Room Cleaning</h1>
+                            <span class="badge">Teacher View</span>
+                        </div>
+                        
+                        ${students.length < 20 ? `
+                            <div class="mb-6">
+                                ${!this.showAddForm ? `
+                                    <button class="btn btn-primary btn-block" onclick="app.toggleAddForm()">
+                                        + Add Student
+                                    </button>
+                                ` : `
+                                    <div class="flex gap-2">
+                                        <input type="text" id="studentName" class="input" placeholder="Student name" />
+                                        <button class="btn btn-primary" onclick="app.addStudent()">Add</button>
+                                        <button class="btn btn-cancel" onclick="app.toggleAddForm()">Cancel</button>
+                                    </div>
+                                `}
+                            </div>
+                        ` : ''}
+                        
+                        ${students.length === 0 ? `
+                            <div class="text-center text-gray" style="padding: 48px 0;">
+                                <div style="font-size: 48px; opacity: 0.5; margin-bottom: 16px;">👥</div>
+                                <p>No students added yet. Add your first student to get started!</p>
+                            </div>
+                        ` : `
+                            <div>
+                                ${students.map(s => this.renderStudentCard(s)).join('')}
+                            </div>
+                        `}
+                        
+                        <div class="text-center text-sm text-gray">
+                            Students: ${students.length}/20
+                        </div>
+                    </div>
+                `;
+            }
+            
+            renderStudentCard(student) {
+                const progress = student.items.filter(i => i.status === 'done').length;
+                
+                return `
+                    <div class="student-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-2">
+                                <span style="font-size: 20px;">👤</span>
+                                <h3 style="font-size: 18px; font-weight: 600;">${student.name}</h3>
+                                <span class="text-sm text-gray">(${progress}/4)</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button class="btn btn-secondary btn-sm" onclick="app.copyLink('${student.id}')">
+                                    Copy Link
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="app.deleteStudent('${student.id}')">
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="items-grid">
+                            ${student.items.map(item => `
+                                <div class="item-card">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span style="font-weight: 500; font-size: 14px;">${item.name}</span>
+                                        <div class="status-dot status-${item.status}"></div>
+                                    </div>
+                                    
+                                    ${item.status === 'pending' ? `
+                                        <span class="text-xs text-gray">Waiting...</span>
+                                    ` : ''}
+                                    
+                                    ${item.status === 'ready' ? `
+                                        <button class="btn btn-primary btn-block btn-sm" onclick="app.markDone('${student.id}', '${item.id}')">
+                                            ✓ Mark Done
+                                        </button>
+                                    ` : ''}
+                                    
+                                    ${item.status === 'done' ? `
+                                        <div class="flex items-center gap-1 text-sm" style="color: #22c55e;">
+                                            <span>✓</span>
+                                            <span>Completed</span>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            renderStudentView() {
+                const student = DB.getStudent(this.studentId);
+                
+                if (!student) {
+                    return `
+                        <div class="card text-center">
+                            <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
+                            <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">Student Not Found</h2>
+                            <p class="text-gray">Please check your link and try again.</p>
+                        </div>
+                    `;
+                }
+                
+                const progress = student.items.filter(i => i.status === 'done').length;
+                const progressPercent = (progress / 4) * 100;
+                
+                return `
+                    <div class="card">
+                        <div class="text-center mb-6">
+                            <h1 class="mb-4">🎄 Christmas Room Cleaning</h1>
+                            <div class="flex items-center justify-center gap-2" style="font-size: 18px;">
+                                <span>👤</span>
+                                <span style="font-weight: 600;">${student.name}</span>
+                            </div>
+                            
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                            </div>
+                            <p class="text-sm text-gray">${progress} of 4 completed</p>
+                        </div>
+                        
+                        <div class="flex flex-col gap-3">
+                            ${student.items.map(item => `
+                                <div class="item-card">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <h3 style="font-size: 18px; font-weight: 600;">${item.name}</h3>
+                                        ${item.status === 'done' ? '<span style="font-size: 24px; color: #22c55e;">✓</span>' : ''}
+                                        ${item.status === 'ready' ? '<span style="font-size: 24px; color: #fbbf24;">⏱️</span>' : ''}
+                                    </div>
+                                    
+                                    ${item.status === 'pending' ? `
+                                        <button class="btn btn-secondary btn-block" onclick="app.markReady('${item.id}')">
+                                            I'm Ready for Check
+                                        </button>
+                                    ` : ''}
+                                    
+                                    ${item.status === 'ready' ? `
+                                        <div class="alert alert-yellow text-center">
+                                            <div style="font-size: 24px; margin-bottom: 8px;">⏱️</div>
+                                            <p class="text-sm" style="font-weight: 500;">Waiting for teacher to check</p>
+                                        </div>
+                                    ` : ''}
+                                    
+                                    ${item.status === 'done' ? `
+                                        <div class="alert alert-green text-center">
+                                            <div style="font-size: 24px; margin-bottom: 8px;">✓</div>
+                                            <p class="text-sm" style="font-weight: 500;">Completed! Well done!</p>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    ${progress === 4 ? `
+                        <div class="celebration">
+                            <div style="font-size: 48px; margin-bottom: 16px;">🎄</div>
+                            <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 8px;">All Done!</h2>
+                            <p>Your room is ready for Christmas! Great job!</p>
+                        </div>
+                    ` : ''}
+                `;
+            }
+            
+            attachTeacherEvents() {
+                const input = document.getElementById('studentName');
+                if (input) {
+                    input.focus();
+                    input.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') this.addStudent();
+                    });
+                }
+            }
+            
+            attachStudentEvents() {
+                // Events are handled via onclick
+            }
+            
+            toggleAddForm() {
+                this.showAddForm = !this.showAddForm;
+                this.render();
+            }
+            
+            addStudent() {
+                const input = document.getElementById('studentName');
+                const name = input ? input.value.trim() : '';
+                
+                if (name && DB.getAllStudents().length < 20) {
+                    DB.addStudent(name);
+                    this.showAddForm = false;
+                    this.render();
+                }
+            }
+            
+            deleteStudent(studentId) {
+                if (confirm('Are you sure you want to remove this student?')) {
+                    DB.deleteStudent(studentId);
+                    this.render();
+                }
+            }
+            
+            copyLink(studentId) {
+                const link = `${window.location.origin}${window.location.pathname}?student=${studentId}`;
+                navigator.clipboard.writeText(link).then(() => {
+                    alert('Link copied to clipboard!');
+                }).catch(() => {
+                    prompt('Copy this link:', link);
+                });
+            }
+            
+            markDone(studentId, itemId) {
+                DB.updateItemStatus(studentId, itemId, 'done');
+                this.render();
+            }
+            
+            markReady(itemId) {
+                DB.updateItemStatus(this.studentId, itemId, 'ready');
+                this.render();
+            }
         }
-
-        ReactDOM.render(<RoomChecklistApp />, document.getElementById('root'));
+        
+        // Start app
+        const app = new App();
     </script>
 </body>
 </html>
