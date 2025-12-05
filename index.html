@@ -36,6 +36,8 @@
             align-items: center;
             justify-content: space-between;
             margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
         }
         
         h1 {
@@ -247,39 +249,114 @@
             display: none;
         }
         
+        .loading {
+            text-align: center;
+            padding: 48px;
+            color: #6b7280;
+        }
+        
         @media (max-width: 640px) {
             .container {
                 max-width: 500px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+            
+            .items-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div id="app"></div>
+        <div id="app">
+            <div class="loading">
+                <div style="font-size: 48px; margin-bottom: 16px;">⏳</div>
+                <p>Loading...</p>
+            </div>
+        </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
     <script>
-        // Database
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCnUO-OG5pZsC9m_JWIsTziC1UWGbTPLno",
+            authDomain: "room-checklisk.firebaseapp.com",
+            databaseURL: "https://room-checklisk-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "room-checklisk",
+            storageBucket: "room-checklisk.firebasestorage.app",
+            messagingSenderId: "517077673708",
+            appId: "1:517077673708:web:e6be92d13f319eda1467c9"
+        };
+
+        // Initialize Firebase
+        let db;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+            // Fallback to localStorage for local testing
+            db = null;
+        }
+
+        // Database wrapper
         const DB = {
-            students: [],
+            ref: db ? db.ref('students') : null,
+            localStudents: [],
             
-            init() {
-                const saved = localStorage.getItem('roomChecklistDB');
-                if (saved) {
-                    try {
-                        this.students = JSON.parse(saved);
-                    } catch (e) {
-                        this.students = [];
+            async init() {
+                if (!this.ref) {
+                    // Use localStorage as fallback
+                    const saved = localStorage.getItem('roomChecklistDB');
+                    if (saved) {
+                        try {
+                            this.localStudents = JSON.parse(saved);
+                        } catch (e) {
+                            this.localStudents = [];
+                        }
                     }
+                    return;
                 }
             },
             
-            save() {
-                localStorage.setItem('roomChecklistDB', JSON.stringify(this.students));
+            async getAllStudents() {
+                if (!this.ref) {
+                    return this.localStudents;
+                }
+                
+                try {
+                    const snapshot = await this.ref.once('value');
+                    const data = snapshot.val();
+                    return data ? Object.values(data) : [];
+                } catch (error) {
+                    console.error("Error fetching students:", error);
+                    return [];
+                }
             },
             
-            addStudent(name) {
+            async getStudent(id) {
+                if (!this.ref) {
+                    return this.localStudents.find(s => s.id === id);
+                }
+                
+                try {
+                    const snapshot = await this.ref.child(id).once('value');
+                    return snapshot.val();
+                } catch (error) {
+                    console.error("Error fetching student:", error);
+                    return null;
+                }
+            },
+            
+            async addStudent(name) {
                 const student = {
                     id: Date.now().toString(),
                     name: name,
@@ -290,40 +367,77 @@
                         { id: 'cupboard', name: 'Cupboard', status: 'pending' }
                     ]
                 };
-                this.students.push(student);
-                this.save();
-                return student;
-            },
-            
-            getStudent(id) {
-                return this.students.find(s => s.id === id);
-            },
-            
-            getAllStudents() {
-                return this.students;
-            },
-            
-            updateItemStatus(studentId, itemId, status) {
-                const student = this.getStudent(studentId);
-                if (student) {
-                    const item = student.items.find(i => i.id === itemId);
-                    if (item) {
-                        item.status = status;
-                        this.save();
-                        return true;
-                    }
+                
+                if (!this.ref) {
+                    this.localStudents.push(student);
+                    localStorage.setItem('roomChecklistDB', JSON.stringify(this.localStudents));
+                    return student;
                 }
-                return false;
+                
+                try {
+                    await this.ref.child(student.id).set(student);
+                    return student;
+                } catch (error) {
+                    console.error("Error adding student:", error);
+                    return null;
+                }
             },
             
-            deleteStudent(studentId) {
-                this.students = this.students.filter(s => s.id !== studentId);
-                this.save();
+            async updateItemStatus(studentId, itemId, status) {
+                if (!this.ref) {
+                    const student = this.localStudents.find(s => s.id === studentId);
+                    if (student) {
+                        const item = student.items.find(i => i.id === itemId);
+                        if (item) {
+                            item.status = status;
+                            localStorage.setItem('roomChecklistDB', JSON.stringify(this.localStudents));
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+                
+                try {
+                    const student = await this.getStudent(studentId);
+                    if (student) {
+                        const item = student.items.find(i => i.id === itemId);
+                        if (item) {
+                            item.status = status;
+                            await this.ref.child(studentId).set(student);
+                            return true;
+                        }
+                    }
+                    return false;
+                } catch (error) {
+                    console.error("Error updating item:", error);
+                    return false;
+                }
+            },
+            
+            async deleteStudent(studentId) {
+                if (!this.ref) {
+                    this.localStudents = this.localStudents.filter(s => s.id !== studentId);
+                    localStorage.setItem('roomChecklistDB', JSON.stringify(this.localStudents));
+                    return;
+                }
+                
+                try {
+                    await this.ref.child(studentId).remove();
+                } catch (error) {
+                    console.error("Error deleting student:", error);
+                }
+            },
+            
+            onStudentsChange(callback) {
+                if (!this.ref) {
+                    return;
+                }
+                
+                this.ref.on('value', (snapshot) => {
+                    callback();
+                });
             }
         };
-
-        // Initialize
-        DB.init();
 
         // App
         class App {
@@ -331,6 +445,8 @@
                 this.view = 'teacher';
                 this.studentId = null;
                 this.showAddForm = false;
+                this.students = [];
+                this.currentStudent = null;
                 
                 // Check URL for student parameter
                 const params = new URLSearchParams(window.location.search);
@@ -340,12 +456,31 @@
                     this.view = 'student';
                 }
                 
-                this.render();
+                this.init();
+            }
+            
+            async init() {
+                await DB.init();
                 
-                // Auto-refresh for student view
-                if (this.view === 'student') {
-                    setInterval(() => this.render(), 2000);
+                if (this.view === 'teacher') {
+                    await this.loadStudents();
+                    // Listen for changes
+                    DB.onStudentsChange(() => this.loadStudents());
+                } else {
+                    await this.loadStudent();
+                    // Auto-refresh for student view
+                    setInterval(() => this.loadStudent(), 3000);
                 }
+            }
+            
+            async loadStudents() {
+                this.students = await DB.getAllStudents();
+                this.render();
+            }
+            
+            async loadStudent() {
+                this.currentStudent = await DB.getStudent(this.studentId);
+                this.render();
             }
             
             render() {
@@ -360,7 +495,7 @@
             }
             
             renderTeacherView() {
-                const students = DB.getAllStudents();
+                const students = this.students;
                 
                 return `
                     <div class="card">
@@ -377,7 +512,7 @@
                                     </button>
                                 ` : `
                                     <div class="flex gap-2">
-                                        <input type="text" id="studentName" class="input" placeholder="Student name" />
+                                        <input type="text" id="studentName" class="input" placeholder="Student name" style="flex: 1;" />
                                         <button class="btn btn-primary" onclick="app.addStudent()">Add</button>
                                         <button class="btn btn-cancel" onclick="app.toggleAddForm()">Cancel</button>
                                     </div>
@@ -408,7 +543,7 @@
                 
                 return `
                     <div class="student-card">
-                        <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center justify-between mb-4" style="flex-wrap: wrap; gap: 8px;">
                             <div class="flex items-center gap-2">
                                 <span style="font-size: 20px;">👤</span>
                                 <h3 style="font-size: 18px; font-weight: 600;">${student.name}</h3>
@@ -456,7 +591,7 @@
             }
             
             renderStudentView() {
-                const student = DB.getStudent(this.studentId);
+                const student = this.currentStudent;
                 
                 if (!student) {
                     return `
@@ -548,21 +683,21 @@
                 this.render();
             }
             
-            addStudent() {
+            async addStudent() {
                 const input = document.getElementById('studentName');
                 const name = input ? input.value.trim() : '';
                 
-                if (name && DB.getAllStudents().length < 20) {
-                    DB.addStudent(name);
+                if (name && this.students.length < 20) {
+                    await DB.addStudent(name);
                     this.showAddForm = false;
-                    this.render();
+                    await this.loadStudents();
                 }
             }
             
-            deleteStudent(studentId) {
+            async deleteStudent(studentId) {
                 if (confirm('Are you sure you want to remove this student?')) {
-                    DB.deleteStudent(studentId);
-                    this.render();
+                    await DB.deleteStudent(studentId);
+                    await this.loadStudents();
                 }
             }
             
@@ -575,14 +710,14 @@
                 });
             }
             
-            markDone(studentId, itemId) {
-                DB.updateItemStatus(studentId, itemId, 'done');
-                this.render();
+            async markDone(studentId, itemId) {
+                await DB.updateItemStatus(studentId, itemId, 'done');
+                await this.loadStudents();
             }
             
-            markReady(itemId) {
-                DB.updateItemStatus(this.studentId, itemId, 'ready');
-                this.render();
+            async markReady(itemId) {
+                await DB.updateItemStatus(this.studentId, itemId, 'ready');
+                await this.loadStudent();
             }
         }
         
