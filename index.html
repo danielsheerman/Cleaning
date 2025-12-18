@@ -255,6 +255,32 @@
             color: #6b7280;
         }
         
+        .notification-banner {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fbbf24;
+            color: #78350f;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            font-weight: 600;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                transform: translateX(-50%) translateY(-100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+        
         @media (max-width: 640px) {
             .container {
                 max-width: 500px;
@@ -447,6 +473,8 @@
                 this.showAddForm = false;
                 this.students = [];
                 this.currentStudent = null;
+                this.previousReadyCount = 0; // Track ready items for notifications
+                this.notificationSound = null;
                 
                 // Check URL for student parameter
                 const params = new URLSearchParams(window.location.search);
@@ -456,7 +484,78 @@
                     this.view = 'student';
                 }
                 
+                // Create notification sound
+                this.createNotificationSound();
+                
                 this.init();
+            }
+            
+            createNotificationSound() {
+                // Create a pleasant notification beep using Web Audio API
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            playNotificationSound() {
+                try {
+                    const ctx = this.audioContext;
+                    const oscillator = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+                    
+                    // Pleasant notification sound
+                    oscillator.frequency.value = 800;
+                    oscillator.type = 'sine';
+                    
+                    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                    
+                    oscillator.start(ctx.currentTime);
+                    oscillator.stop(ctx.currentTime + 0.5);
+                } catch (error) {
+                    console.log("Could not play sound:", error);
+                }
+            }
+            
+            showNotification(studentName, itemName) {
+                // Show visual notification banner
+                const banner = document.createElement('div');
+                banner.className = 'notification-banner';
+                banner.innerHTML = `🔔 ${studentName} is ready for check: ${itemName}`;
+                document.body.appendChild(banner);
+                
+                // Remove after 4 seconds
+                setTimeout(() => {
+                    banner.remove();
+                }, 4000);
+            }
+            
+            checkForNewReadyItems(newStudents) {
+                // Count current ready items
+                let newReadyCount = 0;
+                const readyItems = [];
+                
+                newStudents.forEach(student => {
+                    student.items.forEach(item => {
+                        if (item.status === 'ready') {
+                            newReadyCount++;
+                            readyItems.push({ student: student.name, item: item.name });
+                        }
+                    });
+                });
+                
+                // If we have more ready items than before, play sound and show notification
+                if (newReadyCount > this.previousReadyCount && this.previousReadyCount > 0) {
+                    this.playNotificationSound();
+                    // Find the new ready item
+                    if (readyItems.length > 0) {
+                        const latestReady = readyItems[readyItems.length - 1];
+                        this.showNotification(latestReady.student, latestReady.item);
+                    }
+                }
+                
+                this.previousReadyCount = newReadyCount;
             }
             
             async init() {
@@ -474,7 +573,14 @@
             }
             
             async loadStudents() {
-                this.students = await DB.getAllStudents();
+                const newStudents = await DB.getAllStudents();
+                
+                // Check for new ready items (only for teacher view)
+                if (this.view === 'teacher' && this.students.length > 0) {
+                    this.checkForNewReadyItems(newStudents);
+                }
+                
+                this.students = newStudents;
                 this.render();
             }
             
@@ -497,12 +603,40 @@
             renderTeacherView() {
                 const students = this.students;
                 
+                // Find next student in queue (first one with ready items)
+                let nextInQueue = null;
+                let readyItems = [];
+                
+                for (const student of students) {
+                    const studentReadyItems = student.items.filter(i => i.status === 'ready');
+                    if (studentReadyItems.length > 0) {
+                        nextInQueue = student;
+                        readyItems = studentReadyItems;
+                        break;
+                    }
+                }
+                
                 return `
                     <div class="card">
                         <div class="header">
                             <h1>🎄 Christmas Room Cleaning</h1>
                             <span class="badge">Teacher View</span>
                         </div>
+                        
+                        ${nextInQueue ? `
+                            <div style="background: #fef3c7; border: 2px solid #fbbf24; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                    <span style="font-size: 24px;">⏱️</span>
+                                    <h3 style="font-size: 18px; font-weight: 600; color: #78350f;">Next to Check</h3>
+                                </div>
+                                <div style="font-size: 16px; color: #78350f; font-weight: 500;">
+                                    👤 ${nextInQueue.name}
+                                </div>
+                                <div style="font-size: 14px; color: #92400e; margin-top: 4px;">
+                                    ${readyItems.map(item => item.name).join(', ')}
+                                </div>
+                            </div>
+                        ` : ''}
                         
                         ${students.length < 20 ? `
                             <div class="mb-6">
@@ -637,9 +771,14 @@
                                     ` : ''}
                                     
                                     ${item.status === 'ready' ? `
-                                        <div class="alert alert-yellow text-center">
-                                            <div style="font-size: 24px; margin-bottom: 8px;">⏱️</div>
-                                            <p class="text-sm" style="font-weight: 500;">Waiting for teacher to check</p>
+                                        <div class="alert alert-yellow">
+                                            <div class="text-center mb-3">
+                                                <div style="font-size: 24px; margin-bottom: 8px;">⏱️</div>
+                                                <p class="text-sm" style="font-weight: 500;">Waiting for teacher to check</p>
+                                            </div>
+                                            <button class="btn btn-cancel btn-block btn-sm" onclick="app.undoReady('${item.id}')">
+                                                ↩️ Oops, Cancel
+                                            </button>
                                         </div>
                                     ` : ''}
                                     
@@ -717,6 +856,11 @@
             
             async markReady(itemId) {
                 await DB.updateItemStatus(this.studentId, itemId, 'ready');
+                await this.loadStudent();
+            }
+            
+            async undoReady(itemId) {
+                await DB.updateItemStatus(this.studentId, itemId, 'pending');
                 await this.loadStudent();
             }
         }
